@@ -6,10 +6,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
-// Note a implementação da interface UserDetails
 @Entity
 @Table(name = "USUARIO")
-public class Usuario implements UserDetails { // <-- NOVO
+public class Usuario implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +27,6 @@ public class Usuario implements UserDetails { // <-- NOVO
         return Collections.emptyList();
     }
 
-
     @Override
     public String getPassword() {
         return this.senha;
@@ -39,8 +37,18 @@ public class Usuario implements UserDetails { // <-- NOVO
         return this.email;
     }
 
+    @Override
+    public boolean isAccountNonExpired() { return true; } 
 
-    
+    @Override
+    public boolean isAccountNonLocked() { return true; } 
+
+    @Override
+    public boolean isCredentialsNonExpired() { return true; } 
+
+    @Override
+    public boolean isEnabled() { return true; } 
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getNome() { return nome; }

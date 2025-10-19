@@ -15,7 +15,7 @@ public class AuthService implements UserDetailsService {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
-
+    
     public AuthService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
@@ -29,6 +29,7 @@ public class AuthService implements UserDetailsService {
     }
 
 
+
     public Usuario registrarNovoUsuario(UsuarioCadastroDTO requestDTO) {
         
         if (usuarioRepository.findByEmail(requestDTO.getEmail()).isPresent()) {
@@ -39,7 +40,7 @@ public class AuthService implements UserDetailsService {
         novoUsuario.setNome(requestDTO.getNome());
         novoUsuario.setEmail(requestDTO.getEmail());
 
-        String senhaCriptografada = passwordEncoder.encode(requestDTO.getSenha());
+        String senhaCriptografada = this.passwordEncoder.encode(requestDTO.getSenha()); 
         novoUsuario.setSenha(senhaCriptografada);
 
         return usuarioRepository.save(novoUsuario);
