@@ -14,7 +14,8 @@ import com.fittracker.fittrackerpro.dto.LoginRequestDTO;
 import com.fittracker.fittrackerpro.dto.UsuarioCadastroDTO;
 import com.fittracker.fittrackerpro.model.Usuario;
 import com.fittracker.fittrackerpro.service.AuthService;
-import com.fittracker.fittrackerpro.service.JwtService; // Import necessário
+import com.fittracker.fittrackerpro.service.JwtService; 
+import com.fittracker.fittrackerpro.dto.LoginResponseDTO; // <-- Importação do DTO de Resposta
 
 import jakarta.validation.Valid;
 
@@ -28,20 +29,22 @@ public class AuthController {
     @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private JwtService jwtService; // JwtService é injetado
 
-    // Rota de Cadastro: POST /auth/register
+    // Rota de Cadastro: POST /auth/register (CORRIGIDA)
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody @Valid UsuarioCadastroDTO requestDTO) {
         try {
-            Usuario novoUsuario = authService.registrarNovoUsuario(requestDTO);
+            // CORREÇÃO AQUI: Passando o passwordEncoder para o service
+            Usuario novoUsuario = authService.registrarNovoUsuario(requestDTO, passwordEncoder); 
             return new ResponseEntity<>(novoUsuario, HttpStatus.CREATED);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
-    // Rota de Login: POST /auth/login (RETORNANDO O TOKEN JWT)
+    // Rota de Login: POST /auth/login (IMPLEMENTADA)
+    // Retorna o LoginResponseDTO (Token e ID do Usuário)
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody @Valid LoginRequestDTO requestDTO) { // Retorna String (Token)
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid LoginRequestDTO requestDTO) { 
         try {
             // 1. AUTENTICAÇÃO (Verifica a senha)
             authenticationManager.authenticate(
@@ -50,19 +53,23 @@ public class AuthController {
                     requestDTO.getSenha()
                 )
             );
-
-            // 2. BUSCA USERDETAILS (Se autenticação OK)
-            final UserDetails userDetails = authService.loadUserByUsername(requestDTO.getEmail());
-
-            // 3. GERAÇÃO DO TOKEN JWT (Usando o JwtService)
+            
+            // 2. BUSCA O USUÁRIO COMPLETO (para pegar o ID)
+            // Fazemos o cast para Usuario para acessar o .getId()
+            final Usuario userDetails = (Usuario) authService.loadUserByUsername(requestDTO.getEmail());
+            
+            // 3. GERAÇÃO DO TOKEN
             final String jwtToken = jwtService.generateToken(userDetails);
-
-            // 4. RETORNA O TOKEN
-            return ResponseEntity.ok(jwtToken); // Retorna a string do Token JWT
-
+            
+            // 4. CRIA O DTO DE RESPOSTA
+            LoginResponseDTO response = new LoginResponseDTO(jwtToken, userDetails.getId());
+            
+            // 5. RETORNA O DTO
+            return ResponseEntity.ok(response);
+            
         } catch (AuthenticationException e) {
             // Se a autenticação falhar (senha errada, etc.)
-            return new ResponseEntity<>("Credenciais Inválidas", HttpStatus.UNAUTHORIZED);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
     }
 }
