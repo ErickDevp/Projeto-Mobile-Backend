@@ -34,7 +34,7 @@ public class AuthController {
     public ResponseEntity<?> register(@RequestBody @Valid UsuarioCadastroDTO requestDTO) {
         try {
             // CORREÇÃO AQUI: Passando o passwordEncoder para o service
-            Usuario novoUsuario = authService.registrarNovoUsuario(requestDTO, passwordEncoder); 
+            Usuario novoUsuario = authService.registrarNovoUsuario(requestDTO);
             return new ResponseEntity<>(novoUsuario, HttpStatus.CREATED);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
