@@ -3,9 +3,9 @@ package com.fittracker.fittrackerpro.controller; // Use seu pacote completo
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.fittracker.fittrackerpro.dto.TreinoRequestDTO;
-import com.fittracker.fittrackerpro.dto.TreinoResponseDTO; // NOVO IMPORT
-import com.fittracker.fittrackerpro.model.Treino;
+import com.fittracker.fittrackerpro.dto.treino.TreinoRequestDTO;
+import com.fittracker.fittrackerpro.dto.treino.TreinoResponseDTO; // NOVO IMPORT
+import com.fittracker.fittrackerpro.entity.Treino;
 import com.fittracker.fittrackerpro.service.TreinoService;
 import jakarta.validation.Valid;
 
@@ -22,6 +22,8 @@ public class TreinoController {
         this.treinoService = treinoService;
     }
 
+
+    /*
     // --- ROTA PARA REGISTRAR UM NOVO TREINO ---
     // URL: POST /api/treinos/registrar/{usuarioId}
     @PostMapping("/registrar/{usuarioId}")
@@ -51,4 +53,6 @@ public class TreinoController {
              return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
+
+     */
 }

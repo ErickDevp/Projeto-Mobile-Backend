@@ -1,4 +1,6 @@
-package com.fittracker.fittrackerpro.dto;
+package com.fittracker.fittrackerpro.dto.treino;
+
+import com.fittracker.fittrackerpro.dto.exercicio.ExercicioResponseDTO;
 
 import java.time.LocalDateTime;
 import java.util.List;

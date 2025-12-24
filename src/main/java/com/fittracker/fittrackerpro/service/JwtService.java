@@ -1,79 +1,60 @@
 package com.fittracker.fittrackerpro.service; 
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm; 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import io.jsonwebtoken.security.Keys;
 
-import javax.crypto.spec.SecretKeySpec; 
-import javax.xml.bind.DatatypeConverter; 
+
 import java.security.Key; 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 @Service
 public class JwtService {
 
-    @Value("${jwt.secret-key}")
-    private String SECRET_KEY;
-
-    @Value("${jwt.expiration}")
-    private long EXPIRATION_TIME;
+    // Gere uma chave segura (256 bits para HS256)
+    private final Key key = Keys.hmacShaKeyFor("MINHA_CHAVE_SUPER_SECRETA_COM_256_BITS_PARA_JWT!!!".getBytes());
 
     public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
-    }
+        String role = userDetails.getAuthorities().stream()
+                .findFirst()
+                .map(a -> a.getAuthority())
+                .orElse("USER");
 
-    public String generateToken(
-            Map<String, Object> extraClaims,
-            UserDetails userDetails
-    ) {
-        return Jwts
-                .builder()
-                .setClaims(extraClaims)
+        Map<String, Object> claims = Map.of("role", role);
+
+
+        return Jwts.builder()
                 .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(SignatureAlgorithm.HS256, getSignInKey()) 
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 horas
+                .signWith(key) // usa a Key, não a String
                 .compact();
     }
 
     public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
-    }
-    
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        return Jwts.parserBuilder()
+                .setSigningKey(key) // usa Key, não String
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
     }
 
     private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+        return Jwts.parserBuilder()
+                .setSigningKey(key) // usa Key
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getExpiration()
+                .before(new Date());
     }
 
-    private Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
+    public boolean validateToken(String token, UserDetails userDetails) {
+        final String username = extractUsername(token);
+        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
-    
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
-    }
-    
-    private Claims extractAllClaims(String token) {
-        return Jwts.parser()
-                   .setSigningKey(getSignInKey()) 
-                   .parseClaimsJws(token)
-                   .getBody();
-    }
-    
-    private Key getSignInKey() {
-        byte[] apiKeySecretBytes = DatatypeConverter.parseBase64Binary(SECRET_KEY);
-        Key signingKey = new SecretKeySpec(apiKeySecretBytes, SignatureAlgorithm.HS256.getJcaName());
-        return signingKey;
-    }
+
 }

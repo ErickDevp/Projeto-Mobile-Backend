@@ -1,5 +1,6 @@
-package com.fittracker.fittrackerpro.dto; 
+package com.fittracker.fittrackerpro.dto.treino;
 
+import com.fittracker.fittrackerpro.dto.exercicio.ExercicioRequestDTO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
