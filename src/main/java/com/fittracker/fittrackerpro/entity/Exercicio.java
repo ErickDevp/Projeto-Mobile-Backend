@@ -26,7 +26,7 @@ public class Exercicio {
     private Integer series;
 
     @Column(nullable = false)
-    private Integer repeticoes;
+    private String repeticoes;
 
     @Column(nullable = false)
     private Double cargaTotalKg;

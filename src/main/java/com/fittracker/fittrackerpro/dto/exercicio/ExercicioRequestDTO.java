@@ -15,8 +15,7 @@ public record ExercicioRequestDTO (
         Integer series,
 
         @NotNull(message = "Número de repetições é obrigatório")
-        @Positive(message = "Número de repetições deve ser positivo")
-        Integer repeticoes,
+        String repeticoes,
 
         @NotNull(message = "Carga é obrigatória (pode ser 0.0)")
         @Positive(message = "Número de carga deve ser positivo")

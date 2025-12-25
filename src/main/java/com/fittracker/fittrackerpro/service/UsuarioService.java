@@ -1,6 +1,5 @@
 package com.fittracker.fittrackerpro.service;
 
-
 import com.fittracker.fittrackerpro.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +11,4 @@ public class UsuarioService {
     public UsuarioService(UsuarioRepository repository) {
         this.repository = repository;
     }
-
-
 }

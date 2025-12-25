@@ -1,4 +1,4 @@
-package com.fittracker.fittrackerpro.config; // Use seu pacote completo
+package com.fittracker.fittrackerpro.config;
 
 import com.fittracker.fittrackerpro.security.JwtAuthFilter;
 import com.fittracker.fittrackerpro.service.MyUserDetailsService;

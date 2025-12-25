@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/treinos/{treinoId}/exercicios")
+@RequestMapping("/api/treino/{treinoId}/exercicios")
 public class ExercicioController {
 
     private final ExercicioService exercicioService;
@@ -27,26 +27,17 @@ public class ExercicioController {
         return ResponseEntity.ok(exercicioService.buscarExerciciosDeUmTreino(treinoId, user.getUsername()));
     }
 
-    @PostMapping
-    public ResponseEntity<Long> criarExercicio(@RequestBody @Valid ExercicioRequestDTO dto,
-                                               @PathVariable Long treinoId,
-                                               @AuthenticationPrincipal UserDetails user  ) {
-        return ResponseEntity.ok(exercicioService.criarExercicio(dto, treinoId, user.getUsername()));
-    }
-
     @PutMapping("/{id}")
-    public ResponseEntity<Void> atualizarExercicio(@RequestBody @Valid ExercicioRequestDTO dto,
+    public ResponseEntity<ExercicioResponseDTO> atualizarExercicio(@RequestBody @Valid ExercicioRequestDTO dto,
                                                    @PathVariable Long id,
                                                    @AuthenticationPrincipal UserDetails user) {
-        exercicioService.atualizarExercicio(dto, id, user.getUsername());
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(exercicioService.atualizarExercicio(dto, id, user.getUsername()));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> apagarExercicio(@PathVariable Long id, @AuthenticationPrincipal UserDetails user) {
         exercicioService.apagarExercicio(id, user.getUsername());
         return ResponseEntity.noContent().build();
-
     }
 
 }

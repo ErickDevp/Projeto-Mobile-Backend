@@ -3,6 +3,8 @@ package com.fittracker.fittrackerpro.service;
 import com.fittracker.fittrackerpro.dto.exercicio.ExercicioRequestDTO;
 import com.fittracker.fittrackerpro.dto.exercicio.ExercicioResponseDTO;
 import com.fittracker.fittrackerpro.entity.Exercicio;
+import com.fittracker.fittrackerpro.mapper.ExercicioMapper;
+import com.fittracker.fittrackerpro.mapper.TreinoMapper;
 import com.fittracker.fittrackerpro.repository.ExercicioRepository;
 import com.fittracker.fittrackerpro.repository.TreinoRepository;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,10 +17,12 @@ public class ExercicioService {
 
     private final ExercicioRepository repository;
     private final TreinoRepository treinoRepository;
+    private final ExercicioMapper exercicioMapper;
 
-    public ExercicioService(ExercicioRepository repository, TreinoRepository treinoRepository) {
+    public ExercicioService(ExercicioRepository repository, TreinoRepository treinoRepository, ExercicioMapper exercicioMapper) {
         this.repository = repository;
         this.treinoRepository = treinoRepository;
+        this.exercicioMapper = exercicioMapper;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
@@ -31,25 +35,7 @@ public class ExercicioService {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public Long criarExercicio(ExercicioRequestDTO dto, Long treinoId, String emailLogado) {
-        var treino = treinoRepository
-                .findByIdAndUsuarioEmail(treinoId, emailLogado)
-                .orElseThrow(() -> new RuntimeException("Treino não encontrada para este usuário"));
-
-        Exercicio entity = Exercicio.builder()
-                .treino(treino)
-                .nomeExercicio(dto.nomeExercicio())
-                .series(dto.series())
-                .repeticoes(dto.repeticoes())
-                .cargaTotalKg(dto.cargaTotalKg())
-                .observacoesEx(dto.observacoesEx())
-                .build();
-
-        return repository.save(entity).getId();
-    }
-
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public void atualizarExercicio(ExercicioRequestDTO dto, Long id, String emailLogado) {
+    public ExercicioResponseDTO atualizarExercicio(ExercicioRequestDTO dto, Long id, String emailLogado) {
         var exercicio = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Exercicio não encontrado"));
 
@@ -63,15 +49,7 @@ public class ExercicioService {
         if(dto.cargaTotalKg() != null) exercicio.setCargaTotalKg(dto.cargaTotalKg());
         if(dto.observacoesEx() != null) exercicio.setObservacoesEx(dto.observacoesEx());
 
-        if(dto.treinoId() != null) {
-            var novoTreino = treinoRepository
-                    .findByIdAndUsuarioEmail(dto.treinoId(), emailLogado)
-                    .orElseThrow(() -> new RuntimeException("Treino não encontrada para este usuário"));
-
-            exercicio.setTreino(novoTreino);
-        }
-
-        repository.save(exercicio);
+        return exercicioMapper.toResponseDTO(repository.save(exercicio));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
