@@ -75,7 +75,10 @@ public class TreinoService {
                 .toList();
 
         entity.setExercicios(exercicios);
+        usuario.registrarTreino();
+        usuario.registrarDiaAtivo();
 
+        usuarioRepository.save(usuario);
         repository.save(entity);
 
         return treinoMapper.toResponseDTO(entity);
@@ -100,15 +103,15 @@ public class TreinoService {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public void apagarTreino(Long id, String emailLogado) {
-        var treino = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Treino não encontrado"));
+        repository.findById(id).orElseThrow(() -> new RuntimeException("Treino não encontrado"));
 
-        if(!treino.getUsuario().getEmail().equals(emailLogado)) {
-            throw new RuntimeException("Você não pode alterar treino de outro usuário");
-        }
+        var usuario = usuarioRepository.findByEmail(emailLogado)
+                .orElseThrow(() -> new RuntimeException("Você não pode alterar treino de outro usuário"));
+
+        usuario.removerTreino();
+        usuario.registrarDiaAtivo();
+        usuarioRepository.save(usuario);
 
         repository.deleteById(id);
     }
-
-
 }

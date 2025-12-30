@@ -47,12 +47,10 @@ public class AuthService  {
         this.tokenRepository = tokenRepository;
     }
 
-    // Verifica se email já existe
     public boolean existsByEmail(String email) {
         return usuarioRepository.findByEmail(email).isPresent();
     }
 
-    // Salva usuário com senha criptografada
     public AuthResponseDTO saveUsuario(RegisterRequestDTO dto) {
         if (existsByEmail(dto.email())) {
             throw new ResponseStatusException(
@@ -81,8 +79,6 @@ public class AuthService  {
         return new AuthResponseDTO(token);
     }
 
-
-    // login usuario
     public AuthResponseDTO login(LoginRequestDTO dto) {
         try {
             Authentication authentication = authenticationManager.authenticate(
