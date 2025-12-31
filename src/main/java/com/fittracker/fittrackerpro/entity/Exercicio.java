@@ -37,5 +37,4 @@ public class Exercicio {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_treino", nullable = false)
     private Treino treino;
-
 }

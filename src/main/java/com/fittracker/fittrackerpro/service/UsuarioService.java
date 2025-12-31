@@ -6,6 +6,7 @@ import com.fittracker.fittrackerpro.entity.Usuario;
 import com.fittracker.fittrackerpro.mapper.UsuarioMapper;
 import com.fittracker.fittrackerpro.repository.UsuarioRepository;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -28,6 +29,7 @@ public class UsuarioService {
         this.usuarioMapper = usuarioMapper;
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public UsuarioResponseDTO buscarUsuario(String emailLogado) {
         var usuario = repository.findByEmail(emailLogado)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
@@ -35,6 +37,7 @@ public class UsuarioService {
         return usuarioMapper.toResponseDTO(usuario);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public UsuarioResponseDTO atualizarUsuario(UsuarioRequestDTO dto, String emailLogado) {
         var usuario = repository.findByEmail(emailLogado)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
@@ -46,7 +49,7 @@ public class UsuarioService {
         return usuarioMapper.toResponseDTO(repository.save(usuario));
     }
 
-
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public void salvarFotoPerfil(MultipartFile foto, String emailLogado) {
         var usuario = repository.findByEmail(emailLogado)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
@@ -74,6 +77,7 @@ public class UsuarioService {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public void apagarUsuario(String emailLogado) {
         var usuario = repository.findByEmail(emailLogado)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));

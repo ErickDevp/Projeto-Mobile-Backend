@@ -8,6 +8,7 @@ import com.fittracker.fittrackerpro.entity.Usuario;
 import com.fittracker.fittrackerpro.mapper.TreinoMapper;
 import com.fittracker.fittrackerpro.repository.TreinoRepository;
 import com.fittracker.fittrackerpro.repository.UsuarioRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -100,6 +101,37 @@ public class TreinoService {
 
         return treinoMapper.toResponseDTO(repository.save(treino));
     }
+
+    @Transactional
+    public Treino criarTreinoEntity(TreinoRequestDTO dto, String emailLogado) {
+        var usuario = usuarioRepository.findByEmail(emailLogado)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        Treino entity = Treino.builder()
+                .usuario(usuario)
+                .nomeRotina(dto.nomeRotina())
+                .intensidadeGeral(dto.intensidadeGeral())
+                .duracaoMin(dto.duracaoMin())
+                .observacoes(dto.observacoes())
+                .build();
+
+        List<Exercicio> exercicios = dto.exercicios().stream()
+                .map(exDto -> Exercicio.builder()
+                        .nomeExercicio(exDto.nomeExercicio())
+                        .series(exDto.series())
+                        .repeticoes(exDto.repeticoes())
+                        .cargaTotalKg(exDto.cargaTotalKg())
+                        .observacoesEx(exDto.observacoesEx())
+                        .treino(entity)
+                        .build()
+                )
+                .toList();
+
+        entity.setExercicios(exercicios);
+
+        return repository.save(entity);
+    }
+
 
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public void apagarTreino(Long id, String emailLogado) {
