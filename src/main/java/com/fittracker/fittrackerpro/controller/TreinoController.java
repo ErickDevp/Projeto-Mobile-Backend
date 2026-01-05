@@ -44,6 +44,11 @@ public class TreinoController {
         return ResponseEntity.ok(treinoService.atualizarTreino(dto, id, user.getUsername()));
     }
 
+    @PostMapping("/usar/{id}")
+    public ResponseEntity<TreinoResponseDTO> usarTreinoRotina(@PathVariable Long id, @AuthenticationPrincipal UserDetails user) {
+        return ResponseEntity.ok(treinoService.usarTreinoRotina(id, user.getUsername()));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> apagarTreino(@PathVariable Long id, @AuthenticationPrincipal UserDetails user) {
         treinoService.apagarTreino(id, user.getUsername());

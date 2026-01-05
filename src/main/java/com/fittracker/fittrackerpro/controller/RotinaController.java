@@ -37,6 +37,11 @@ public class RotinaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(rotinaService.criarRotina(dto, user.getUsername()));
     }
 
+    @PostMapping("/salvar/{id}")
+    public ResponseEntity<RotinaResponseDTO> salvaRotinaTemplate(@PathVariable Long id, @AuthenticationPrincipal UserDetails user) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(rotinaService.salvaRotinaTemplate(id, user.getUsername()));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> apagarRotina(@PathVariable Long id, @AuthenticationPrincipal UserDetails user) {
         rotinaService.apagarRotina(id, user.getUsername());

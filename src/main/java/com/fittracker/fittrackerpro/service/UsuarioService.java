@@ -2,7 +2,6 @@ package com.fittracker.fittrackerpro.service;
 
 import com.fittracker.fittrackerpro.dto.usuario.UsuarioRequestDTO;
 import com.fittracker.fittrackerpro.dto.usuario.UsuarioResponseDTO;
-import com.fittracker.fittrackerpro.entity.Usuario;
 import com.fittracker.fittrackerpro.mapper.UsuarioMapper;
 import com.fittracker.fittrackerpro.repository.UsuarioRepository;
 import org.springframework.http.HttpStatus;

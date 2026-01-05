@@ -1,19 +1,17 @@
 package com.fittracker.fittrackerpro.entity;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "tb_treinos")
 @Builder
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Treino {
@@ -36,11 +34,11 @@ public class Treino {
 	private String observacoes;
 
     @Column(nullable = false, updatable = false)
-    private LocalDateTime criado_em;
+    private LocalDate criado_em;
 
     @PrePersist
     protected void onCreate() {
-        this.criado_em = LocalDateTime.now();
+        this.criado_em = LocalDate.now();
     }
 
     @OneToMany(mappedBy = "treino", cascade = CascadeType.ALL, orphanRemoval = true)

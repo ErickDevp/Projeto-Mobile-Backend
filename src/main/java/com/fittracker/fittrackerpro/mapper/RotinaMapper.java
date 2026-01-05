@@ -18,7 +18,7 @@ public class RotinaMapper {
         return new RotinaResponseDTO(
                 rotina.getId(),
                 rotina.getNome(),
-                rotina.getDescricao(),
+                rotina.getDataInicio(),
                 diaRotinaMapper.toResponseDTO(rotina.getDias())
         );
     }

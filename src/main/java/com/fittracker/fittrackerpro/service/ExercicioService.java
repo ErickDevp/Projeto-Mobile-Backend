@@ -2,9 +2,7 @@ package com.fittracker.fittrackerpro.service;
 
 import com.fittracker.fittrackerpro.dto.exercicio.ExercicioRequestDTO;
 import com.fittracker.fittrackerpro.dto.exercicio.ExercicioResponseDTO;
-import com.fittracker.fittrackerpro.entity.Exercicio;
 import com.fittracker.fittrackerpro.mapper.ExercicioMapper;
-import com.fittracker.fittrackerpro.mapper.TreinoMapper;
 import com.fittracker.fittrackerpro.repository.ExercicioRepository;
 import com.fittracker.fittrackerpro.repository.TreinoRepository;
 import org.springframework.security.access.prepost.PreAuthorize;

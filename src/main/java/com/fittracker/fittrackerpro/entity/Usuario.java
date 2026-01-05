@@ -3,10 +3,7 @@ package com.fittracker.fittrackerpro.entity;
 import com.fittracker.fittrackerpro.entity.enums.ObjetivoUsuario;
 import com.fittracker.fittrackerpro.entity.enums.Role;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,7 +13,8 @@ import java.util.List;
 @Entity
 @Table(name = "tb_usuarios")
 @Builder
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Usuario {

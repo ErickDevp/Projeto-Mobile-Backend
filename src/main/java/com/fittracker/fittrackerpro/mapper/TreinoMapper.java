@@ -41,21 +41,5 @@ public class TreinoMapper {
                 exercicios
         );
     }
-
-    public void updateEntityFromDto(TreinoRequestDTO dto, Treino treino) {
-        if (dto == null || treino == null) return;
-
-        if (dto.nomeRotina() != null)
-            treino.setNomeRotina(dto.nomeRotina());
-
-        if (dto.duracaoMin() != null)
-            treino.setDuracaoMin(dto.duracaoMin());
-
-        if (dto.intensidadeGeral() != null)
-            treino.setIntensidadeGeral(dto.intensidadeGeral());
-
-        if (dto.observacoes() != null)
-            treino.setObservacoes(dto.observacoes());
-    }
 }
 

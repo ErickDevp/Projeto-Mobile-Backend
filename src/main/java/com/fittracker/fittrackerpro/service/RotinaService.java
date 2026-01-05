@@ -3,16 +3,14 @@ package com.fittracker.fittrackerpro.service;
 import com.fittracker.fittrackerpro.dto.diaRotina.DiaRequestDTO;
 import com.fittracker.fittrackerpro.dto.rotina.RotinaRequestDTO;
 import com.fittracker.fittrackerpro.dto.rotina.RotinaResponseDTO;
-import com.fittracker.fittrackerpro.entity.DiaRotina;
-import com.fittracker.fittrackerpro.entity.Rotina;
-import com.fittracker.fittrackerpro.entity.Treino;
+import com.fittracker.fittrackerpro.entity.*;
 import com.fittracker.fittrackerpro.mapper.RotinaMapper;
-import com.fittracker.fittrackerpro.repository.RotinaRepository;
-import com.fittracker.fittrackerpro.repository.UsuarioRepository;
+import com.fittracker.fittrackerpro.repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -22,12 +20,16 @@ public class RotinaService {
     private final UsuarioRepository usuarioRepository;
     private final RotinaMapper rotinaMapper;
     private final TreinoService treinoService;
+    private final RotinaTemplateRepository rotinaTemplateRepository;
+    private final TreinoCloneService treinoCloneService;
 
-    public RotinaService(RotinaRepository repository, UsuarioRepository usuarioRepository, RotinaMapper rotinaMapper, TreinoService treinoService) {
+    public RotinaService(RotinaRepository repository, UsuarioRepository usuarioRepository, RotinaMapper rotinaMapper, TreinoService treinoService, RotinaTemplateRepository rotinaTemplateRepository, TreinoCloneService treinoCloneService) {
         this.repository = repository;
         this.usuarioRepository = usuarioRepository;
         this.rotinaMapper = rotinaMapper;
         this.treinoService = treinoService;
+        this.rotinaTemplateRepository = rotinaTemplateRepository;
+        this.treinoCloneService = treinoCloneService;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
@@ -59,9 +61,11 @@ public class RotinaService {
         var usuario = usuarioRepository.findByEmail(emailLogado)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        Rotina rotina = new Rotina();
-        rotina.setNome(dto.nome());
-        rotina.setUsuario(usuario);
+        Rotina rotina = Rotina.builder()
+                .nome(dto.nome())
+                .dataInicio(LocalDate.now())
+                .usuario(usuario)
+                .build();
 
         for (DiaRequestDTO diaDTO : dto.dias()) {
             Treino treino = treinoService.criarTreinoEntity(
@@ -70,14 +74,35 @@ public class RotinaService {
             );
 
             DiaRotina dia = new DiaRotina();
-            dia.setDiaSemana(diaDTO.dia());
-            dia.setTreino(treino);
+                dia.setDiaSemana(diaDTO.dia());
+                dia.setTreino(treino);
 
             rotina.adicionarDia(dia);
         }
 
         repository.save(rotina);
         return rotinaMapper.toResponseDTO(rotina);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public RotinaResponseDTO salvaRotinaTemplate(Long id, String emailLogado) {
+        var usuario = usuarioRepository.findByEmail(emailLogado)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        RotinaTemplate template = rotinaTemplateRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Rotina não encontrado"));
+
+        Rotina rotina = Rotina.builder()
+                .nome(template.getNome())
+                .dataInicio(LocalDate.now())
+                .usuario(usuario)
+                .build();
+
+        for (DiaRotina dia : clonarDias(template.getDias(), usuario)) {
+            rotina.adicionarDia(dia);
+        }
+
+        return rotinaMapper.toResponseDTO(repository.save(rotina));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
@@ -90,5 +115,20 @@ public class RotinaService {
         }
 
         repository.deleteById(id);
+    }
+
+    public List<DiaRotina> clonarDias(List<DiaRotina> diasTemplate, Usuario usuario) {
+        return diasTemplate.stream()
+                .map(dia -> clonarDia(dia, usuario))
+                .toList();
+    }
+
+    private DiaRotina clonarDia(DiaRotina diaTemplate, Usuario usuario) {
+        DiaRotina dia = DiaRotina.builder()
+                .diaSemana(diaTemplate.getDiaSemana())
+                .treino(treinoCloneService.clonarTreino(diaTemplate.getTreino(), usuario))
+                .build();
+
+        return dia;
     }
 }

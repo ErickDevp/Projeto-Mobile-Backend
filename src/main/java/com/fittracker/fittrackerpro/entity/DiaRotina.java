@@ -2,15 +2,13 @@ package com.fittracker.fittrackerpro.entity;
 
 import com.fittracker.fittrackerpro.entity.enums.DiaSemana;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "tb_dia")
 @Builder
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class DiaRotina {
@@ -28,4 +26,8 @@ public class DiaRotina {
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "id_treino")
     private Treino treino;
+
+    @ManyToOne
+    @JoinColumn(name = "id_rotina_template")
+    private RotinaTemplate rotinaTemplate;
 }

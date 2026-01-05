@@ -2,13 +2,13 @@ package com.fittracker.fittrackerpro.dto.treino;
 
 import com.fittracker.fittrackerpro.dto.exercicio.ExercicioResponseDTO;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 public record TreinoResponseDTO(
         Long id,
         String nomeRotina,
-        LocalDateTime dataTreino,
+        LocalDate dataTreino,
         Integer duracaoMin,
         Integer intensidadeGeral,
         String observacoes,

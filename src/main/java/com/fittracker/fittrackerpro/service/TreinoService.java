@@ -2,10 +2,9 @@ package com.fittracker.fittrackerpro.service; // Use seu pacote completo
 
 import com.fittracker.fittrackerpro.dto.treino.TreinoRequestDTO;
 import com.fittracker.fittrackerpro.dto.treino.TreinoResponseDTO;
-import com.fittracker.fittrackerpro.entity.Exercicio;
-import com.fittracker.fittrackerpro.entity.Treino;
-import com.fittracker.fittrackerpro.entity.Usuario;
+import com.fittracker.fittrackerpro.entity.*;
 import com.fittracker.fittrackerpro.mapper.TreinoMapper;
+import com.fittracker.fittrackerpro.repository.DiaRepository;
 import com.fittracker.fittrackerpro.repository.TreinoRepository;
 import com.fittracker.fittrackerpro.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
@@ -18,13 +17,17 @@ import java.util.List;
 public class TreinoService {
 
     private final TreinoRepository repository;
-    private final UsuarioRepository usuarioRepository;
     private final TreinoMapper treinoMapper;
+    private final UsuarioRepository usuarioRepository;
+    private final DiaRepository diaRepository;
+    private final TreinoCloneService treinoCloneService;
 
-    public TreinoService(TreinoRepository repository, UsuarioRepository usuarioRepository, TreinoMapper treinoMapper) {
+    public TreinoService(TreinoRepository repository, UsuarioRepository usuarioRepository, TreinoMapper treinoMapper, DiaRepository diaRepository, TreinoCloneService treinoCloneService) {
         this.repository = repository;
         this.usuarioRepository = usuarioRepository;
         this.treinoMapper = treinoMapper;
+        this.diaRepository = diaRepository;
+        this.treinoCloneService = treinoCloneService;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
@@ -132,6 +135,24 @@ public class TreinoService {
         return repository.save(entity);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public TreinoResponseDTO usarTreinoRotina(Long id, String emailLogado) {
+        var usuario = usuarioRepository.findByEmail(emailLogado)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        DiaRotina dia = diaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Dia não encontrado"));
+
+        if (dia.getRotina() == null
+                || dia.getRotina().getUsuario() == null
+                || !dia.getRotina().getUsuario().equals(usuario)) {
+            throw new RuntimeException("Você não pode usar um treino de outro usuário");
+        }
+
+        Treino treino = treinoCloneService.clonarTreino(dia.getTreino(), usuario);
+
+        return treinoMapper.toResponseDTO(repository.save(treino));
+    }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public void apagarTreino(Long id, String emailLogado) {
