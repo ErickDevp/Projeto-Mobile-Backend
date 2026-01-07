@@ -76,7 +76,7 @@ public class AuthService  {
 
         String token = jwtService.generateToken(userDetails);
 
-        return new AuthResponseDTO(token);
+        return new AuthResponseDTO(token, saved.getId(), saved.getNome());
     }
 
     public AuthResponseDTO login(LoginRequestDTO dto) {
@@ -86,7 +86,11 @@ public class AuthService  {
 
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             String token = jwtService.generateToken(userDetails);
-            return new AuthResponseDTO(token);
+
+            Usuario usuario = usuarioRepository.findByEmail(dto.email())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
+
+            return new AuthResponseDTO(token, usuario.getId(), usuario.getNome());
 
         } catch (BadCredentialsException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciais inválidas");
