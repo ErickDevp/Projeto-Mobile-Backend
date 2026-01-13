@@ -15,7 +15,8 @@ public class UsuarioMapper {
                 usuario.getEmail(),
                 usuario.getTotalTreinos(),
                 usuario.getDiasAtivo(),
-                usuario.getObjetivo()
+                usuario.getObjetivo(),
+                usuario.getFotoPerfil()
         );
 
     }

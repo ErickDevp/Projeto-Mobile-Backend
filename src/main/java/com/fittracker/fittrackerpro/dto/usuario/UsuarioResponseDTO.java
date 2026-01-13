@@ -8,5 +8,6 @@ public record UsuarioResponseDTO(
         String email,
         Integer totalTreino,
         Integer diasAtivo,
-        ObjetivoUsuario objetivo
+        ObjetivoUsuario objetivo,
+        String fotoPerfil
 ) {}
