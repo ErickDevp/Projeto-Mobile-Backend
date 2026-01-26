@@ -5,6 +5,7 @@ import com.fittracker.fittrackerpro.dto.treino.TreinoResponseDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -39,8 +40,18 @@ public class TreinoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TreinoResponseDTO> atualizarTreino(@RequestBody @Valid TreinoRequestDTO dto,
-                                                             @PathVariable Long id, @AuthenticationPrincipal UserDetails user) {
+    public ResponseEntity<TreinoResponseDTO> atualizarTreino(
+            @RequestBody @Valid TreinoRequestDTO dto,
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails user,
+            Authentication authentication // <--- VOCÊ PRECISA ADICIONAR ISSO AQUI!
+    ) {
+        System.out.println("=== DEBUG DE SEGURANÇA ===");
+        // Agora o Java sabe quem é 'authentication' porque recebemos ali em cima
+        System.out.println("Usuário: " + authentication.getName());
+        System.out.println("Permissões: " + authentication.getAuthorities());
+
+        // Precisamos passar o email (username) para o serviço
         return ResponseEntity.ok(treinoService.atualizarTreino(dto, id, user.getUsername()));
     }
 

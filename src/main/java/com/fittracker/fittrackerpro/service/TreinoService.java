@@ -1,4 +1,4 @@
-package com.fittracker.fittrackerpro.service; // Use seu pacote completo
+package com.fittracker.fittrackerpro.service;
 
 import com.fittracker.fittrackerpro.dto.treino.TreinoRequestDTO;
 import com.fittracker.fittrackerpro.dto.treino.TreinoResponseDTO;
@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TreinoService {
@@ -53,6 +54,7 @@ public class TreinoService {
                 .toList();
     }
 
+    @Transactional // Importante para garantir que salve tudo junto
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public TreinoResponseDTO criarTreino(TreinoRequestDTO dto, String emailLogado) {
         var usuario = usuarioRepository.findByEmail(emailLogado)
@@ -71,7 +73,7 @@ public class TreinoService {
                         .nomeExercicio(exDto.nomeExercicio())
                         .series(exDto.series())
                         .repeticoes(exDto.repeticoes())
-                        .cargaTotalKg(exDto.cargaTotalKg())
+                        .cargaTotalKg(exDto.cargaTotalKg()) // Double
                         .observacoesEx(exDto.observacoesEx())
                         .treino(entity)
                         .build()
@@ -88,6 +90,7 @@ public class TreinoService {
         return treinoMapper.toResponseDTO(entity);
     }
 
+    @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public TreinoResponseDTO atualizarTreino(TreinoRequestDTO dto, Long id, String emailLogado) {
         var treino = repository.findById(id)
@@ -102,7 +105,27 @@ public class TreinoService {
         if(dto.duracaoMin() != null) treino.setDuracaoMin(dto.duracaoMin());
         if(dto.observacoes() != null) treino.setObservacoes(dto.observacoes());
 
-        return treinoMapper.toResponseDTO(repository.save(treino));
+        if (dto.exercicios() != null) {
+            treino.getExercicios().clear();
+
+            List<Exercicio> novosExercicios = dto.exercicios().stream()
+                    .map(exDto -> Exercicio.builder()
+                            .nomeExercicio(exDto.nomeExercicio())
+                            .series(exDto.series())
+                            .repeticoes(exDto.repeticoes())
+                            .cargaTotalKg(exDto.cargaTotalKg())
+                            .observacoesEx(exDto.observacoesEx())
+                            .treino(treino)
+                            .build())
+                    .collect(Collectors.toList());
+
+
+            treino.getExercicios().addAll(novosExercicios);
+        }
+
+        Treino treinoSalvo = repository.saveAndFlush(treino);
+
+        return treinoMapper.toResponseDTO(treinoSalvo);
     }
 
     @Transactional
@@ -156,13 +179,23 @@ public class TreinoService {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public void apagarTreino(Long id, String emailLogado) {
-        repository.findById(id).orElseThrow(() -> new RuntimeException("Treino não encontrado"));
+        // 1. Busca o Treino
+        Treino treino = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Treino não encontrado"));
+
+        // 2. CORREÇÃO DE SEGURANÇA: Verifica se o dono do treino é quem está tentando apagar
+        if (!treino.getUsuario().getEmail().equals(emailLogado)) {
+            throw new RuntimeException("Você não tem permissão para excluir este treino");
+        }
 
         var usuario = usuarioRepository.findByEmail(emailLogado)
-                .orElseThrow(() -> new RuntimeException("Você não pode alterar treino de outro usuário"));
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         usuario.removerTreino();
-        usuario.registrarDiaAtivo();
+        // Nota: Verificar se 'registrarDiaAtivo' faz sentido ao remover. Geralmente removemos apenas o contador de treinos.
+        // Se a lógica for 'fez uma ação no app', ok. Se for 'fez exercicio', talvez não deva chamar aqui.
+        // usuario.registrarDiaAtivo();
+
         usuarioRepository.save(usuario);
 
         repository.deleteById(id);

@@ -15,9 +15,9 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Treino {
-	
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_treino")
     private Long id;
 
@@ -31,7 +31,7 @@ public class Treino {
     private Integer intensidadeGeral;
 
     // Opcional
-	private String observacoes;
+    private String observacoes;
 
     @Column(nullable = false, updatable = false)
     private LocalDate criado_em;
@@ -41,10 +41,13 @@ public class Treino {
         this.criado_em = LocalDate.now();
     }
 
-    @OneToMany(mappedBy = "treino", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "treino", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @Builder.Default
+    @ToString.Exclude
     private List<Exercicio> exercicios = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_usuario", nullable = false)
+    @ToString.Exclude // 3. Evita loop infinito
     private Usuario usuario;
 }

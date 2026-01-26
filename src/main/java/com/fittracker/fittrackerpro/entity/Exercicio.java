@@ -1,5 +1,6 @@
 package com.fittracker.fittrackerpro.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,5 +35,20 @@ public class Exercicio {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_treino", nullable = false)
+    @JsonIgnore
+    @ToString.Exclude
     private Treino treino;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Exercicio exercicio = (Exercicio) o;
+        return id != null && id.equals(exercicio.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }
