@@ -22,7 +22,7 @@ public class Treino {
     private Long id;
 
     @Column(nullable = false)
-    private String nomeRotina;
+    private String nomeTreino;
 
     @Column(nullable = false)
     private Integer duracaoMin;
@@ -40,6 +40,9 @@ public class Treino {
     protected void onCreate() {
         this.criado_em = LocalDate.now();
     }
+
+    @OneToOne(mappedBy = "treino")
+    private DiaRotina diaRotina;
 
     @OneToMany(mappedBy = "treino", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @Builder.Default

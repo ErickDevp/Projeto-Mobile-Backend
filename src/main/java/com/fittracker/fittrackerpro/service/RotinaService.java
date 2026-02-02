@@ -68,14 +68,17 @@ public class RotinaService {
                 .build();
 
         for (DiaRequestDTO diaDTO : dto.dias()) {
+
             Treino treino = treinoService.criarTreinoEntity(
                     diaDTO.treino(),
                     emailLogado
             );
 
             DiaRotina dia = new DiaRotina();
-                dia.setDiaSemana(diaDTO.dia());
-                dia.setTreino(treino);
+            dia.setDiaSemana(diaDTO.dia());
+
+            dia.setTreino(treino);
+            treino.setDiaRotina(dia);
 
             rotina.adicionarDia(dia);
         }
@@ -106,15 +109,20 @@ public class RotinaService {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @Transactional
     public void apagarRotina(Long id, String emailLogado) {
-        var rotina = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Rotina não encontrado"));
 
-        if(!rotina.getUsuario().getEmail().equals(emailLogado)) {
-            throw new RuntimeException("Você não pode alterar rotina de outro usuário");
+        Usuario usuario = usuarioRepository.findByEmail(emailLogado)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        Rotina rotina = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Rotina não encontrada"));
+
+        if (!rotina.getUsuario().getId().equals(usuario.getId())) {
+            throw new RuntimeException("Sem permissão");
         }
 
-        repository.deleteById(id);
+        repository.delete(rotina);
     }
 
     public List<DiaRotina> clonarDias(List<DiaRotina> diasTemplate, Usuario usuario) {

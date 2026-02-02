@@ -20,11 +20,11 @@ public class DiaRotina {
     private DiaSemana diaSemana;
 
     @ManyToOne
-    @JoinColumn(name = "id_rotina")
+    @JoinColumn(name = "id_rotina", nullable = false)
     private Rotina rotina;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "id_treino")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "id_treino", nullable = false)
     private Treino treino;
 
     @ManyToOne

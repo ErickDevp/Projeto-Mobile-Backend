@@ -1,9 +1,14 @@
 package com.fittracker.fittrackerpro.mapper;
 
+import com.fittracker.fittrackerpro.dto.diaRotina.DiaResponseDTO;
+import com.fittracker.fittrackerpro.dto.diaRotina.DiaRotinaTemplateResponseDTO;
+import com.fittracker.fittrackerpro.dto.exercicio.ExercicioResponseDTO;
 import com.fittracker.fittrackerpro.dto.rotinaTemplate.response.RotinaTemplateResponseDTO;
 import com.fittracker.fittrackerpro.dto.rotinaTemplate.response.RotinaTemplateTodosResponseDTO;
 import com.fittracker.fittrackerpro.entity.RotinaTemplate;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class RotinaTemplateMapper {
@@ -28,12 +33,22 @@ public class RotinaTemplateMapper {
 
     public RotinaTemplateTodosResponseDTO toResponseTodosDTO(RotinaTemplate rotina) {
 
+        List<DiaRotinaTemplateResponseDTO> dia =
+                rotina.getDias() == null
+                        ? List.of()
+                        : rotina.getDias().stream()
+                        .map(d -> new DiaRotinaTemplateResponseDTO(
+                                d.getDiaSemana()
+                        ))
+                        .toList();
+
         return new RotinaTemplateTodosResponseDTO(
                 rotina.getId(),
                 rotina.getNome(),
                 rotina.getDescricao(),
                 rotina.getObjetivo(),
-                rotina.getNivel()
+                rotina.getNivel(),
+                dia
         );
     }
 }
