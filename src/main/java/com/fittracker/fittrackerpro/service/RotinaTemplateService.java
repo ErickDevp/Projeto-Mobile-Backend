@@ -4,6 +4,7 @@ import com.fittracker.fittrackerpro.dto.diaRotina.DiaRequestDTO;
 import com.fittracker.fittrackerpro.dto.rotinaTemplate.request.RotinaTemplateRequestDTO;
 import com.fittracker.fittrackerpro.dto.rotinaTemplate.response.RotinaTemplateResponseDTO;
 import com.fittracker.fittrackerpro.dto.rotinaTemplate.response.RotinaTemplateTodosResponseDTO;
+import com.fittracker.fittrackerpro.dto.treino.TreinoRequestDTO;
 import com.fittracker.fittrackerpro.entity.DiaRotina;
 import com.fittracker.fittrackerpro.entity.RotinaTemplate;
 import com.fittracker.fittrackerpro.entity.Treino;
@@ -91,5 +92,4 @@ public class RotinaTemplateService {
 
         repository.delete(template);
     }
-
 }

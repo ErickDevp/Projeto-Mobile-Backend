@@ -1,16 +1,12 @@
 package com.fittracker.fittrackerpro.mapper;
 
-import com.fittracker.fittrackerpro.dto.exercicio.ExercicioRequestDTO;
+import com.fittracker.fittrackerpro.dto.diaRotina.DiaMapperTreinoResponseDTO;
 import com.fittracker.fittrackerpro.dto.exercicio.ExercicioResponseDTO;
-import com.fittracker.fittrackerpro.dto.treino.TreinoRequestDTO;
 import com.fittracker.fittrackerpro.dto.treino.TreinoResponseDTO;
-import com.fittracker.fittrackerpro.entity.Exercicio;
 import com.fittracker.fittrackerpro.entity.Treino;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-
-import static java.util.stream.Collectors.toList;
 
 @Component
 public class TreinoMapper {
@@ -31,9 +27,16 @@ public class TreinoMapper {
                         ))
                         .toList();
 
+        // ✅ NULL-SAFE para DiaRotina
+        DiaMapperTreinoResponseDTO diaRotinaDTO =
+                treino.getDiaRotina() != null
+                        ? new DiaMapperTreinoResponseDTO(treino.getDiaRotina().getId())
+                        : null;
+
         return new TreinoResponseDTO(
                 treino.getId(),
-                treino.getNomeRotina(),
+                diaRotinaDTO,
+                treino.getNomeTreino(),
                 treino.getCriado_em(),
                 treino.getDuracaoMin(),
                 treino.getIntensidadeGeral(),
@@ -42,4 +45,3 @@ public class TreinoMapper {
         );
     }
 }
-

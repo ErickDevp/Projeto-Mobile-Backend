@@ -13,7 +13,8 @@ public class TreinoCloneService {
 
     public Treino clonarTreino(Treino treinoTemplate, Usuario usuario) {
         Treino treino = Treino.builder()
-                .nomeRotina(treinoTemplate.getNomeRotina())
+                .diaRotina(treinoTemplate.getDiaRotina())
+                .nomeTreino(treinoTemplate.getNomeTreino())
                 .criado_em(LocalDate.now())
                 .intensidadeGeral(treinoTemplate.getIntensidadeGeral())
                 .duracaoMin(treinoTemplate.getDuracaoMin())

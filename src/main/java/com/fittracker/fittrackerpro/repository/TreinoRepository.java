@@ -12,4 +12,9 @@ import java.util.Optional;
 public interface TreinoRepository extends JpaRepository<Treino, Long> {
     List<Treino> findByUsuarioId(Long id);
     Optional<Treino> findByIdAndUsuarioEmail(Long id, String email);
+    List<Treino> findByUsuarioIdAndDiaRotinaIsNull(Long usuarioId);
+    Optional<Treino> findByIdAndUsuarioIdAndDiaRotinaIsNull(
+            Long id,
+            Long usuarioId
+    );
 }

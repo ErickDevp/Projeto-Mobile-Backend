@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/rotinas/explore")
+@RequestMapping("/api/rotina/explore")
 public class RotinaTemplateController {
 
     public final RotinaTemplateService service;

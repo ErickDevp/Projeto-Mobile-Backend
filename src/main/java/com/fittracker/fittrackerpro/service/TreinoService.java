@@ -5,6 +5,7 @@ import com.fittracker.fittrackerpro.dto.treino.TreinoResponseDTO;
 import com.fittracker.fittrackerpro.entity.*;
 import com.fittracker.fittrackerpro.mapper.TreinoMapper;
 import com.fittracker.fittrackerpro.repository.DiaRepository;
+import com.fittracker.fittrackerpro.repository.RotinaRepository;
 import com.fittracker.fittrackerpro.repository.TreinoRepository;
 import com.fittracker.fittrackerpro.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
@@ -36,9 +37,10 @@ public class TreinoService {
         var usuario = usuarioRepository.findByEmail(emailLogado)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        Treino treino = repository.findById(id)
-                .filter(t -> t.getUsuario().getId().equals(usuario.getId()))
-                .orElseThrow(() -> new RuntimeException("Treino não encontrado"));
+        Treino treino = repository
+                .findByIdAndUsuarioIdAndDiaRotinaIsNull(id, usuario.getId())
+                .orElseThrow(() ->
+                        new RuntimeException("Treino não encontrado ou é um modelo de rotina"));
 
         return treinoMapper.toResponseDTO(treino);
     }
@@ -48,10 +50,11 @@ public class TreinoService {
         Usuario usuario = usuarioRepository.findByEmail(emailLogado)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        return repository.findByUsuarioId(usuario.getId())
+        return repository.findByUsuarioIdAndDiaRotinaIsNull(usuario.getId())
                 .stream()
                 .map(treinoMapper::toResponseDTO)
                 .toList();
+
     }
 
     @Transactional // Importante para garantir que salve tudo junto
@@ -62,7 +65,8 @@ public class TreinoService {
 
         Treino entity = Treino.builder()
                 .usuario(usuario)
-                .nomeRotina(dto.nomeRotina())
+                .diaRotina(null)
+                .nomeTreino(dto.nomeTreino())
                 .intensidadeGeral(dto.intensidadeGeral())
                 .duracaoMin(dto.duracaoMin())
                 .observacoes(dto.observacoes())
@@ -100,7 +104,7 @@ public class TreinoService {
             throw new RuntimeException("Você não pode alterar treino de outro usuário");
         }
 
-        if(dto.nomeRotina() != null) treino.setNomeRotina(dto.nomeRotina());
+        if(dto.nomeTreino() != null) treino.setNomeTreino(dto.nomeTreino());
         if(dto.intensidadeGeral() != null) treino.setIntensidadeGeral(dto.intensidadeGeral());
         if(dto.duracaoMin() != null) treino.setDuracaoMin(dto.duracaoMin());
         if(dto.observacoes() != null) treino.setObservacoes(dto.observacoes());
@@ -135,7 +139,7 @@ public class TreinoService {
 
         Treino entity = Treino.builder()
                 .usuario(usuario)
-                .nomeRotina(dto.nomeRotina())
+                .nomeTreino(dto.nomeTreino())
                 .intensidadeGeral(dto.intensidadeGeral())
                 .duracaoMin(dto.duracaoMin())
                 .observacoes(dto.observacoes())
@@ -155,7 +159,7 @@ public class TreinoService {
 
         entity.setExercicios(exercicios);
 
-        return repository.save(entity);
+        return entity;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
